@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery with Effects</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 10px;
+            flex: 1;
+            margin-bottom: 100px; /* 为底部按钮留出空间 */
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            height: calc(100vh - 120px);
+            padding: 8px;
+            box-sizing: border-box;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .photo-item {
+            background: white;
+            padding: 3px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            max-width: 180px;
+            margin: 0 auto;
+        }
+        .photo-item img {
+            width: 100%;
+            height: calc((100vh - 140px) / 2);
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 3px;
+            flex: 1;
+        }
+        .button-group {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            padding: 3px;
+        }
+        button {
+            padding: 3px 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+        .turn-off {
+            background-color: #ff4444;
+            color: white;
+        }
+        .heart {
+            background-color: #ff69b4;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .dark {
+            filter: brightness(0.3);
+        }
+        .heart-effect {
+            position: relative;
+            animation: enhanceImage 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.8);
+        }
+        @keyframes enhanceImage {
+            0% { 
+                box-shadow: 0 0 30px rgba(255, 105, 180, 0.8);
+            }
+            50% { 
+                box-shadow: 0 0 50px rgba(255, 105, 180, 1);
+            }
+            100% { 
+                box-shadow: 0 0 30px rgba(255, 105, 180, 0.8);
+            }
+        }
+        .heart-effect::after {
+            content: '❤️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            animation: heartBeat 2s ease-in-out infinite;
+            pointer-events: none;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+            z-index: 2;
+        }
+        @keyframes heartBeat {
+            0% { 
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.3);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.8;
+            }
+        }
+        .photo-item.heart-active {
+            animation: glowPulse 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.8);
+        }
+        @keyframes glowPulse {
+            0% {
+                box-shadow: 0 0 30px rgba(255, 105, 180, 0.8);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(255, 105, 180, 1);
+            }
+            100% {
+                box-shadow: 0 0 30px rgba(255, 105, 180, 0.8);
+            }
+        }
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 5px;
+            flex-wrap: nowrap;
+            justify-content: center;
+            max-width: 95%;
+            z-index: 1000;
+            overflow-x: auto;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .navigation.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .nav-trigger {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: 999;
+            pointer-events: none;
+        }
+        .nav-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 70px;
+            flex-shrink: 0;
+        }
+        .nav-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="photo-grid">
+            <!-- Repeat this block 12 times -->
+            <div class="photo-item">
+                <img src="IMG_8217.JPG" alt="Photo 1">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="IMG_8791.jpeg" alt="Photo 2">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="IMG_8954.jpeg" alt="Photo 3">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="IMG_8713.PNG" alt="Photo 4">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="6dc75c79ac2cdd9fb3c9af2209254eb2.jpg" alt="Photo 5">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="https://picsum.photos/200/300?random=1" alt="Photo 1">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="https://picsum.photos/200/300?random=2" alt="Photo 2">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="https://picsum.photos/200/300?random=3" alt="Photo 3">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="https://picsum.photos/200/300?random=4" alt="Photo 4">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="https://picsum.photos/200/300" alt="Photo 10">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="https://picsum.photos/200/300" alt="Photo 11">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+            <div class="photo-item">
+                <img src="https://picsum.photos/200/300" alt="Photo 12">
+                <div class="button-group">
+                    <button class="turn-off" onclick="toggleLight(this)">灭灯</button>
+                    <button class="heart" onclick="showHeart(this)">爆灯</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-trigger" id="navTrigger"></div>
+    <div class="navigation">
+        <button class="nav-button" onclick="window.location.href='single.html?photo=0'">1号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=1'">2号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=2'">3号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=3'">4号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=4'">5号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=5'">6号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=6'">7号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=7'">8号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=8'">9号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=9'">10号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=10'">11号女嘉宾</button>
+        <button class="nav-button" onclick="window.location.href='single.html?photo=11'">12号女嘉宾</button>
+    </div>
+
+    <!-- 添加音频元素 -->
+    <audio id="turnOffSound" preload="auto">
+        <source src="turn-off.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="heartSound" preload="auto">
+        <source src="heart.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // 音频控制函数
+        function playSound(soundId) {
+            const sound = document.getElementById(soundId);
+            sound.currentTime = 0; // 重置音频到开始
+            sound.play().catch(error => {
+                console.log("Audio play failed:", error);
+            });
+        }
+
+        // 添加鼠标移动检测
+        document.addEventListener('mousemove', function(e) {
+            const navTrigger = document.getElementById('navTrigger');
+            const navigation = document.querySelector('.navigation');
+            const triggerRect = navTrigger.getBoundingClientRect();
+            
+            if (e.clientY > triggerRect.top) {
+                navigation.classList.add('visible');
+            } else {
+                navigation.classList.remove('visible');
+            }
+        });
+
+        function toggleLight(button) {
+            const photoItem = button.closest('.photo-item');
+            const img = photoItem.querySelector('img');
+            img.classList.toggle('dark');
+            playSound('turnOffSound');
+        }
+
+        function showHeart(button) {
+            const photoItem = button.closest('.photo-item');
+            const img = photoItem.querySelector('img');
+            img.classList.toggle('heart-effect');
+            photoItem.classList.toggle('heart-active');
+            playSound('heartSound');
+        }
+    </script>
+</body>
+</html> 
